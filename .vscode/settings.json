@@ -1,0 +1,14 @@
+{
+    "[javascript]": {
+      "stylelint.enable": false
+    },
+    "[javascriptreact]": {
+      "stylelint.enable": false
+    },
+    "[typescript]": {
+      "stylelint.enable": false
+    },
+    "[typescriptreact]": {
+      "stylelint.enable": false
+    }
+  }
