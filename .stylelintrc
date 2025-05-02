@@ -1,6 +1,12 @@
 {
-  "extends": "stylelint-config-standard",
-  "ignoreFiles": ["**/*.js", "**/*.jsx"],
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-tailwindcss"
+  ],
+  "plugins": [
+    "stylelint-order"
+  ],
+  "ignoreFiles": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
   "overrides": [
     {
       "files": ["*.css", "*.scss", "*.sass"],
@@ -9,5 +15,15 @@
         "max-empty-lines": 4
       }
     }
-  ]
+  ],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind", "apply", "variants", "responsive", "screen"]
+      }
+    ],
+    "color-function-notation": "modern",
+    "font-family-no-missing-generic-family-keyword": null
+  }
 }
