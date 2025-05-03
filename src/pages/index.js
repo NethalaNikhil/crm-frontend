@@ -9,47 +9,37 @@ export default function Home() {
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [usernameError, setUsernameError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [loginError, setLoginError] = useState("");
+  const [form, setForm] = useState({ username: "", password: "" });
+  const [errors, setErrors] = useState({ username: "", password: "", login: "" });
+
+  const handleChange = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value });
+    setErrors({ ...errors, [field]: "", login: "" });
+  };
 
   const handleLogin = async () => {
-    let hasError = false;
-    if (username === "") {
-      setUsernameError("Please enter username");
-      hasError = true;
-    } else {
-      setUsernameError("");
-    }
+    const newErrors = {
+      username: form.username ? "" : "Please enter username",
+      password: form.password ? "" : "Please enter password",
+      login: "",
+    };
 
-    if (password === "") {
-      setPasswordError("Please enter password");
-      hasError = true;
-    } else {
-      setPasswordError("");
-    }
+    setErrors(newErrors);
+    if (newErrors.username || newErrors.password) return;
 
-    if (!hasError) {
-      try {
-        const response = await axios.post(`${apiUrl}/login`, {
-          username,
-          password,
-        });
-
-        if (response.status === 201) {
-          const jwtToken = response.data;
-          localStorage.setItem("jwtToken", jwtToken);
-          router.push("/dashboard");
-        }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          setLoginError("Invalid username or password");
-        } else {
-          setLoginError("An error occurred. Please try again.");
-        }
+    try {
+      const response = await axios.post(`${apiUrl}/login`, form);
+      if (response.status === 201) {
+        localStorage.setItem("jwtToken", response.data);
+        router.push("/dashboard");
       }
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        login: error.response?.status === 401
+          ? "Invalid username or password"
+          : "An error occurred. Please try again.",
+      }));
     }
   };
 
@@ -58,64 +48,38 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
         {/* Left Column */}
         <div className="flex flex-col justify-center items-start px-8 md:px-16">
-          <Image
-            src="/skillcapital.png"
-            alt="Logo"
-            width={350}
-            height={300}
-            className="mb-8"
-          />
+          <Image src="/skillcapital.png" alt="Logo" width={350} height={300} className="mb-8" />
           <div className="w-full max-w-md bg-white shadow-lg rounded-md p-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300 mb-1"
-            />
-            {usernameError && (
-              <p className="text-red-600 text-sm mb-2">{usernameError}</p>
-            )}
-
-            <label className="block text-sm font-medium text-gray-700 mt-4 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300 mb-1"
-            />
-            {passwordError && (
-              <p className="text-red-600 text-sm mb-2">{passwordError}</p>
-            )}
+            {["username", "password"].map((field) => (
+              <div key={field} className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+                  {field}
+                </label>
+                <input
+                  type={field === "password" ? "password" : "text"}
+                  value={form[field]}
+                  onChange={handleChange(field)}
+                  className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
+                />
+                {errors[field] && <p className="text-red-600 text-sm">{errors[field]}</p>}
+              </div>
+            ))}
 
             <button
               onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-orange-300 to-pink-500 text-white py-2 rounded mt-6 hover:opacity-90 transition"
+              className="w-full bg-gradient-to-r from-orange-300 to-pink-500 text-white py-2 rounded mt-2 hover:opacity-90 transition"
             >
               Login
             </button>
-            {loginError && (
-              <p className="text-red-600 text-sm mt-2">{loginError}</p>
-            )}
+
+            {errors.login && <p className="text-red-600 text-sm mt-2">{errors.login}</p>}
 
             <div className="flex items-center mt-4">
-              <input
-                type="checkbox"
-                id="remember"
-                className="mr-2 accent-pink-500"
-              />
-              <label htmlFor="remember" className="text-gray-600 text-sm">
-                Remember Me
-              </label>
+              <input type="checkbox" id="remember" className="mr-2 accent-pink-500" />
+              <label htmlFor="remember" className="text-gray-600 text-sm">Remember Me</label>
             </div>
 
-            <p className="text-center text-gray-500 text-sm mt-10">
-              © 2024, All rights reserved
-            </p>
+            <p className="text-center text-gray-500 text-sm mt-10">© 2024, All rights reserved</p>
           </div>
         </div>
 
@@ -128,13 +92,7 @@ export default function Home() {
             Centralize customer data effortlessly. Streamline communication,
             sales, and support for seamless growth.
           </p>
-          <Image
-            src="/pinkcrm.png"
-            width={800}
-            height={533}
-            alt="CRM"
-            className="mt-4 ms-16"
-          />
+          <Image src="/pinkcrm.png" width={800} height={533} alt="CRM" className="mt-4 ms-16" />
         </div>
       </div>
     </main>
