@@ -79,9 +79,7 @@ export default function AboveTable() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Create Campaign"
       >
-        <p>Put your form or content here.</p>
         <button
           className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
           onClick={() => setIsModalOpen(false)}
